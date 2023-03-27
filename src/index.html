@@ -30,7 +30,7 @@
 
     // Get the API response containing the x and y values
     fetch(
-            `http://localhost:5111/deathstrikeusage?report_id=${report_id}&fight_id=${fight_id}`
+            `https://api.bdk.nymann.dev/deathstrikeusage?report_id=${report_id}&fight_id=${fight_id}`
     )
       .then((response) => {
         if (!response.ok) {
