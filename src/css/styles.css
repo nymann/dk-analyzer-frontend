@@ -1,0 +1,15 @@
+html {
+  font-family: "Roboto", sans-serif;
+}
+
+.user-input {
+  display: grid;
+  grid-template-rows: 1;
+  grid-template-columns: 1fr 1fr 1fr;
+}
+
+.wrapper {
+  height: 100vh;
+  display: grid;
+  grid-template-rows: min-content min-content auto;
+}

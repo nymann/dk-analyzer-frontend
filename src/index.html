@@ -1,120 +1,169 @@
 <!DOCTYPE html>
-  <head> </head>
+<html lang="en">
+  <head>
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
   <body>
-    <form>
-  <label for="report_id">Report ID:</label>
-  <input type="text" id="report_id" name="report_id"><br>
+    <div class="wrapper">
+      <h5>https://www.warcraftlogs.com/reports/REPORT_ID/#fight=FIGHT_ID</h5>
+      <p>Note that "last" is not valid yet as a fight_id.</p>
+      <div class="user-input">
+        <div class="report-id">
+          <label for="report_id">Report ID:</label>
+          <input
+            type="text"
+            id="report_id"
+            name="report_id"
+            value="MyvF2p1m7Df4VLjH"
+          />
+        </div>
 
-  <label for="fight_id">Fight ID:</label>
-  <input type="text" id="fight_id" name="fight_id" value="1"><br>
+        <div class="fight-id">
+          <label for="fight_id">Fight ID:</label>
+          <input type="text" id="fight_id" name="fight_id" value="25" />
+        </div>
 
-  <button type="button" onclick="submitForm()">Submit</button>
-    </form>
-    <div>
-      <canvas id="myChart"></canvas>
+        <button type="button" onclick="submitForm()">Submit</button>
+      </div>
+      <div class="chart">
+        <canvas id="myChart"></canvas>
+      </div>
     </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.3.0/chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@1.0.1/dist/chartjs-plugin-annotation.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-zoom/2.0.1/chartjs-plugin-zoom.min.js"></script>
+    <script>
+      var ds_chart = null;
+      var test_url = "http://0.0.0.0:5111";
+      var prod_url = "https://api.bdk.nymann.dev";
+      var api_url = prod_url;
+      function submitForm() {
+        const reportId = document.getElementById("report_id").value;
+        const fightId = document.getElementById("fight_id").value;
+
+        generateChart(reportId, fightId);
+      }
+
+      function generateChart(report_id, fight_id) {
+        // Get the API response containing the x and y values
+        fetch(
+          `${api_url}/deathstrikeusagebubblechart?report_id=${report_id}&fight_id=${fight_id}`
+        )
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error("Network response was not ok");
+            }
+            return response.json();
+          })
+          .then((data) => {
+            const ctx = document.getElementById("myChart");
+            if (ds_chart != null) {
+              ds_chart.destroy();
+            }
+            ds_chart = new Chart(ctx, {
+              type: "bubble",
+              data: {
+                datasets: [
+                  {
+                    label: "Death Strike",
+                    data: data["data"],
+                    backgroundColor: "rgba(31, 119, 180, 0.5)",
+                  },
+                ],
+              },
+              options: {
+                maintainAspectRatio: false,
+                scales: {
+                  x: {
+                    type: "linear",
+                    position: "bottom",
+                    title: {
+                      display: true,
+                      text: "Runic Power",
+                    },
+                  },
+                  y: {
+                    type: "linear",
+                    position: "left",
+                    title: {
+                      display: true,
+                      text: "HP%",
+                    },
+                  },
+                },
+                plugins: {
+                  tooltip: {
+                    callbacks: {
+                      label: function (context) {
+                        return "";
+                      },
+                      title: function (context) {
+                        var raw = context[0].raw;
+                        return `HP%: ${raw["y"].toFixed(2)}\nRP: ${
+                          raw["x"]
+                        }\n\nCount: ${raw["r"] - 1}`;
+                      },
+                    },
+                  },
+                  title: {
+                    display: true,
+                    text: `Death Strike Usage (mean RP: ${data[
+                      "mean_rp"
+                    ].toFixed(2)}, mean HP%: ${data["mean_hp"].toFixed(2)})`,
+                  },
+                  zoom: {
+                    limits: {
+                      y: { min: 0, max: 100 },
+                      x: { min: 35, max: 125 },
+                    },
+                    zoom: {
+                      wheel: {
+                        enabled: true,
+                      },
+                      pinch: {
+                        enabled: true,
+                      },
+                      mode: "xy",
+                    },
+                  },
+                  annotation: {
+                    annotations: {
+                      rp: {
+                        type: "line",
+                        mode: "vertical",
+                        scaleID: "x",
+                        value: 95,
+                        borderColor: "red",
+                        borderWidth: 2,
+                      },
+                      hp: {
+                        type: "line",
+                        yMin: 70,
+                        yMax: 70,
+                        xMax: 95,
+                        borderColor: "#FEBD0D",
+                        borderWidth: 2,
+                      },
+                      wasteful: {
+                        type: "box",
+                        yMin: 70,
+                        yMax: 100,
+                        xMin: 35,
+                        xMax: 95,
+                        backgroundColor: "rgba(0, 0, 0, 0.1)",
+                        borderWidth: 0,
+                      },
+                    },
+                  },
+                },
+              },
+            });
+          })
+          .catch((error) => {
+            console.error("There was a problem with the API call:", error);
+          });
+      }
+    </script>
   </body>
-
-   <script src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.3.0/chart.min.js'></script>
-   <script src='https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@1.0.1/dist/chartjs-plugin-annotation.min.js'></script>
-  <script>
-        var scatterChart = null;
-        function submitForm() {
-          const reportId = document.getElementById('report_id').value;
-          const fightId = document.getElementById('fight_id').value;
-        
-          generateChart(reportId, fightId);
-        }
-
-        function generateChart(report_id, fight_id) {
-
-    // Get the API response containing the x and y values
-    fetch(
-            `https://api.bdk.nymann.dev/deathstrikeusage?report_id=${report_id}&fight_id=${fight_id}`
-    )
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-        return response.json();
-      })
-      .then((data) => {
-        // Extract the x and y values from the API response
-        const xValues = data["rp_list"];
-        const yValues = data["hp_list"];
-
-        // Create a scatter chart using Chart.js
-        const ctx = document.getElementById("myChart");
-        if(scatterChart != null) {
-                scatterChart.destroy();
-        }
-        scatterChart = new Chart(ctx, {
-          type: "scatter",
-          data: {
-            datasets: [
-              {
-                label: "Death Strike Usage",
-                data: xValues.map((x, i) => ({ x, y: yValues[i] })),
-                backgroundColor: "#1F77B4",
-              },
-            ],
-          },
-          options: {
-            scales: {
-              x: {
-                type: "linear",
-                position: "bottom",
-                title: {
-                  display: true,
-                  text: "Runic Power",
-                },
-              },
-              y: {
-                type: "linear",
-                position: "left",
-                title: {
-                  display: true,
-                  text: "HP%",
-                },
-              },
-            },
-          plugins: {
-            annotation: {
-              annotations: {
-                rp: {
-                  type: 'line',
-                  mode: 'vertical',
-                  scaleID: 'x',
-                  value: 95,
-                  borderColor: 'red',
-                  borderWidth: 2,
-                },
-                hp: {
-                  type: 'line',
-                  yMin: 70,
-                  yMax: 70,
-                  xMax: 95,
-                  borderColor: '#FEBD0D',
-                  borderWidth: 2,
-                },
-                wasteful: {
-                  type: 'box',
-                  yMin: 70,
-                  yMax: 100,
-                  xMin: 35,
-                  xMax: 95,
-                  backgroundColor: 'rgba(0, 0, 0, 0.1)',
-                  borderWidth: 0,
-                }
-              }
-             }
-          },
-         },
-        });
-      })
-      .catch((error) => {
-        console.error("There was a problem with the API call:", error);
-      });
-        }
-  </script>
 </html>
