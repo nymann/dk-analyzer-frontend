@@ -20,7 +20,16 @@
 
         <div class="fight-id">
           <label for="fight_id">Fight ID:</label>
-          <input type="text" id="fight_id" name="fight_id" value="25" />
+          <input type="number" id="fight_id" name="fight_id" value="25" />
+        </div>
+        <div class="base-bubble-size">
+          <label for="fight_id">Base bubble size:</label>
+          <input
+            type="number"
+            id="base_bubble_size"
+            name="base_bubble_size"
+            value="4"
+          />
         </div>
 
         <button type="button" onclick="submitForm()">Submit</button>
@@ -37,18 +46,20 @@
       var ds_chart = null;
       var test_url = "http://0.0.0.0:5111";
       var prod_url = "https://api.bdk.nymann.dev";
-      var api_url = prod_url;
+      var api_url = test_url;
       function submitForm() {
         const reportId = document.getElementById("report_id").value;
         const fightId = document.getElementById("fight_id").value;
+        const base_bubble_size =
+          document.getElementById("base_bubble_size").value;
 
-        generateChart(reportId, fightId);
+        generateChart(reportId, fightId, base_bubble_size);
       }
 
-      function generateChart(report_id, fight_id) {
+      function generateChart(report_id, fight_id, base_bubble_size) {
         // Get the API response containing the x and y values
         fetch(
-          `${api_url}/deathstrikeusagebubblechart?report_id=${report_id}&fight_id=${fight_id}`
+          `${api_url}/deathstrikeusagebubblechart?report_id=${report_id}&fight_id=${fight_id}&base_bubble_size=${base_bubble_size}`
         )
           .then((response) => {
             if (!response.ok) {
@@ -102,7 +113,7 @@
                         var raw = context[0].raw;
                         return `HP%: ${raw["y"].toFixed(2)}\nRP: ${
                           raw["x"]
-                        }\n\nCount: ${raw["r"] - 1}`;
+                        }\n\nCount: ${raw["count"]}`;
                       },
                     },
                   },
@@ -132,10 +143,12 @@
                       rp: {
                         type: "line",
                         mode: "vertical",
-                        scaleID: "x",
-                        value: 95,
+                        xMin: 95,
+                        xMax: 95,
+                        yMin: 0,
+                        yMax: 100,
                         borderColor: "red",
-                        borderWidth: 2,
+                        borderWidth: 3,
                       },
                       hp: {
                         type: "line",
@@ -143,7 +156,7 @@
                         yMax: 70,
                         xMax: 95,
                         borderColor: "#FEBD0D",
-                        borderWidth: 2,
+                        borderWidth: 3,
                       },
                       wasteful: {
                         type: "box",
