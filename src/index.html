@@ -5,22 +5,15 @@
   </head>
   <body>
     <div class="wrapper">
-      <h5>https://www.warcraftlogs.com/reports/REPORT_ID/#fight=FIGHT_ID</h5>
-      <p>Note that "last" is not valid yet as a fight_id.</p>
       <div class="user-input">
-        <div class="report-id">
-          <label for="report_id">Report ID:</label>
+        <div class="report-url">
+          <label for="report_url">Warcraft Logs URL:</label>
           <input
             type="text"
-            id="report_id"
-            name="report_id"
-            value="MyvF2p1m7Df4VLjH"
+            id="report_url"
+            name="report_url"
+            value="https://www.warcraftlogs.com/reports/MyvF2p1m7Df4VLjH/#fight=25"
           />
-        </div>
-
-        <div class="fight-id">
-          <label for="fight_id">Fight ID:</label>
-          <input type="number" id="fight_id" name="fight_id" value="25" />
         </div>
         <div class="base-bubble-size">
           <label for="fight_id">Base bubble size:</label>
@@ -31,8 +24,7 @@
             value="4"
           />
         </div>
-
-        <button type="button" onclick="submitForm()">Submit</button>
+        <button type="button" onclick="submitForm()">Generate</button>
       </div>
       <div class="chart">
         <canvas id="myChart"></canvas>
@@ -48,21 +40,23 @@
       var prod_url = "https://api.bdk.nymann.dev";
       var api_url = prod_url;
       function submitForm() {
-        const reportId = document.getElementById("report_id").value;
-        const fightId = document.getElementById("fight_id").value;
-        const base_bubble_size =
-          document.getElementById("base_bubble_size").value;
+        const url = document.getElementById("report_url").value;
+        const bubble_size = document.getElementById("base_bubble_size").value;
 
-        generateChart(reportId, fightId, base_bubble_size);
+        generateChart(url, bubble_size);
       }
 
-      function generateChart(report_id, fight_id, base_bubble_size) {
-        // Get the API response containing the x and y values
+      function generateChart(url, base_bubble_size) {
         fetch(
-          `${api_url}/deathstrikeusagebubblechart?report_id=${report_id}&fight_id=${fight_id}&base_bubble_size=${base_bubble_size}`
+          `${api_url}/deathstrikeusagebubblechart?` +
+            new URLSearchParams({
+              base_bubble_size: base_bubble_size,
+              url: url,
+            })
         )
           .then((response) => {
             if (!response.ok) {
+              alert(response.json());
               throw new Error("Network response was not ok");
             }
             return response.json();

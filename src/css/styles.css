@@ -4,12 +4,18 @@ html {
 
 .user-input {
   display: grid;
-  grid-template-rows: 1;
-  grid-template-columns: 1fr 1fr 1fr 1fr;
+  grid-template-columns: 2fr 1fr 1fr;
+  grid-column-gap: 10px;
+}
+
+.report-url {
+  display: grid;
+  grid-template-columns: max-content auto;
+  grid-column-gap: 10px;
 }
 
 .wrapper {
   height: 100vh;
   display: grid;
-  grid-template-rows: min-content min-content auto;
+  grid-template-rows: max-content auto;
 }
