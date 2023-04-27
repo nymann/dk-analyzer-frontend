@@ -1,4 +1,4 @@
-FROM nginx:alpine
+FROM nginx:bullseye
 
 MAINTAINER kristian@nymann.dev
 
