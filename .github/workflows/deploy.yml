@@ -12,13 +12,12 @@ jobs:
       - name: Publish to registry
         uses: azure/docker-login@v1
         with:
-          login-server: registry.nymann.dev
           username: ${{ secrets.REGISTRY_USER }}
           password: ${{ secrets.REGISTRY_PASS }}
       - name: Publish to registry
         run: |
           docker build --cache-from $ONBUILD -t $ONBUILD -f Dockerfile .
-          docker push --all-tags registry.nymann.dev/dk-analyzer-frontend
+          docker push --all-tags nymann/dk-analyzer-frontend
         env:
-          ONBUILD: registry.nymann.dev/dk-analyzer-frontend:onbuild
-          IMAGE: registry.nymann.dev/dk-analyzer-frontend
+          ONBUILD: nymann/dk-analyzer-frontend:onbuild
+          IMAGE: nymann/dk-analyzer-frontend
